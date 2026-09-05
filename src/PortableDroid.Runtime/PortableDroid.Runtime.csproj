@@ -6,4 +6,7 @@
     <ProjectReference Include="..\PortableDroid.Core\PortableDroid.Core.csproj" />
     <ProjectReference Include="..\PortableDroid.Infrastructure\PortableDroid.Infrastructure.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="PortableDroid.Tests" />
+  </ItemGroup>
 </Project>
