@@ -261,7 +261,9 @@ internal static class AxmlWriter
     private static void WriteStartElement(BinaryWriter w, int nameIndex, IReadOnlyList<byte[]> attributes)
     {
         var attrBytes = attributes.SelectMany(a => a).ToArray();
-        var size = 8 + 8 + 16 + attrBytes.Length; // chunk header + line/comment + element header + attrs
+        // chunk header (8) + line/comment (8) + element header (20) + attributes.
+        // The element header is ns(4) name(4) attrStart(2) attrSize(2) count(2) id(2) class(2) style(2).
+        var size = 8 + 8 + 20 + attrBytes.Length;
 
         w.Write((ushort)0x0102);      // RES_XML_START_ELEMENT_TYPE
         w.Write((ushort)16);          // header size
