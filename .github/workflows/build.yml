@@ -106,10 +106,14 @@ jobs:
           path: PortableDroid-portable-win-x64.zip
           retention-days: 30
 
-      - name: Upload test results
+      - name: Upload build and test logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: '**/results.trx'
+          name: logs
+          path: |
+            build.log
+            test.log
+            **/results.trx
           retention-days: 7
+          if-no-files-found: ignore
