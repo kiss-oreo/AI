@@ -1,0 +1,92 @@
+name: Build PortableDroid
+
+on:
+  push:
+    branches: [ "arena/**", main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore PortableDroid.sln
+
+      - name: Build (Release)
+        run: dotnet build PortableDroid.sln --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: dotnet test tests/PortableDroid.Tests/PortableDroid.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=results.trx" --logger "console;verbosity=detailed"
+
+      - name: Publish portable executable
+        run: >
+          dotnet publish src/PortableDroid.App/PortableDroid.App.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:DebugType=none
+          --output publish/app
+
+      - name: Assemble the portable folder
+        shell: pwsh
+        run: |
+          $stage = "publish/PortableDroid"
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+
+          # The single-file exe plus the portable folder template.
+          Copy-Item publish/app/PortableDroid.exe $stage/
+          Copy-Item -Recurse payload/* $stage/ -Force
+
+          Copy-Item README.md $stage/README.md
+          Copy-Item -Recurse docs $stage/docs
+          Copy-Item -Recurse THIRD_PARTY_LICENSES $stage/THIRD_PARTY_LICENSES
+          Copy-Item scripts/Get-Runtime.ps1 $stage/Get-Runtime.ps1
+
+          # Sanity check: the shipped config must not pin a drive letter.
+          $settings = Get-Content "$stage/config/settings.json" -Raw
+          if ($settings -match '[A-Za-z]:\\') {
+            Write-Error "settings.json contains an absolute path; that would break portability."
+            exit 1
+          }
+
+          Write-Host "Staged contents:"
+          Get-ChildItem -Recurse $stage | Select-Object -ExpandProperty FullName
+
+      - name: Verify the executable is present and sane
+        shell: pwsh
+        run: |
+          $exe = "publish/PortableDroid/PortableDroid.exe"
+          if (-not (Test-Path $exe)) { Write-Error "PortableDroid.exe was not produced."; exit 1 }
+          $size = (Get-Item $exe).Length / 1MB
+          Write-Host ("PortableDroid.exe = {0:n1} MB" -f $size)
+          if ($size -lt 5) { Write-Error "Executable looks too small to be self-contained."; exit 1 }
+
+      - name: Create release archive
+        shell: pwsh
+        run: Compress-Archive -Path publish/PortableDroid -DestinationPath PortableDroid-portable-win-x64.zip -Force
+
+      - name: Upload PortableDroid
+        uses: actions/upload-artifact@v4
+        with:
+          name: PortableDroid-portable-win-x64
+          path: PortableDroid-portable-win-x64.zip
+          retention-days: 30
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/results.trx'
+          retention-days: 7

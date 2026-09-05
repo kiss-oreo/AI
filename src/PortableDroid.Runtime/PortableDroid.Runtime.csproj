@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PortableDroid.Core\PortableDroid.Core.csproj" />
+    <ProjectReference Include="..\PortableDroid.Infrastructure\PortableDroid.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

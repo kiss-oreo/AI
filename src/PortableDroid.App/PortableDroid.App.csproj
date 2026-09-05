@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>PortableDroid</AssemblyName>
+    <RootNamespace>PortableDroid.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PortableDroid.Core\PortableDroid.Core.csproj" />
+    <ProjectReference Include="..\PortableDroid.Infrastructure\PortableDroid.Infrastructure.csproj" />
+    <ProjectReference Include="..\PortableDroid.Runtime\PortableDroid.Runtime.csproj" />
+  </ItemGroup>
+</Project>
