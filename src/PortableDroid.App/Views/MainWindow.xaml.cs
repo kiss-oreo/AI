@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using PortableDroid.App.ViewModels;
 using PortableDroid.Core.Apk;
