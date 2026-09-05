@@ -1,0 +1,10 @@
+{
+  "name": "default",
+  "performanceProfile": "auto",
+  "memoryMB": 0,
+  "cpuCores": 0,
+  "resolution": "1280x720",
+  "fps": 30,
+  "graphicsMode": "auto",
+  "userdataImage": "userdata/android.qcow2"
+}

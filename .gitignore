@@ -1,0 +1,23 @@
+# build output
+bin/
+obj/
+*.user
+
+# runtime + generated portable state (never commit these)
+payload/runtime/**
+!payload/runtime/.gitkeep
+payload/profiles/*/userdata/**
+!payload/profiles/*/userdata/.gitkeep
+payload/cache/**
+payload/logs/**
+payload/temp/**
+payload/backups/**
+payload/apps/imported/**
+!payload/**/.gitkeep
+
+# images / large artifacts
+*.qcow2
+*.img
+*.iso
+*.apk
+*.pdbackup
