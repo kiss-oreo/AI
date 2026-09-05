@@ -21,10 +21,33 @@ jobs:
         run: dotnet restore PortableDroid.sln
 
       - name: Build (Release)
-        run: dotnet build PortableDroid.sln --configuration Release --no-restore
+        id: build
+        shell: pwsh
+        run: |
+          dotnet build PortableDroid.sln --configuration Release --no-restore 2>&1 | Tee-Object -FilePath build.log
+          $code = $LASTEXITCODE
+          $errors = Select-String -Path build.log -Pattern ': error ' | ForEach-Object { $_.Line } | Sort-Object -Unique
+          if ($errors) {
+            "## Build errors" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+            '```' | Out-File -Append $env:GITHUB_STEP_SUMMARY
+            $errors | Out-File -Append $env:GITHUB_STEP_SUMMARY
+            '```' | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          }
+          exit $code
 
       - name: Run unit tests
-        run: dotnet test tests/PortableDroid.Tests/PortableDroid.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=results.trx" --logger "console;verbosity=detailed"
+        shell: pwsh
+        run: |
+          dotnet test tests/PortableDroid.Tests/PortableDroid.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=results.trx" --logger "console;verbosity=normal" 2>&1 | Tee-Object -FilePath test.log
+          $code = $LASTEXITCODE
+          $failures = Select-String -Path test.log -Pattern '^\s*(Failed|error)' | ForEach-Object { $_.Line } | Select-Object -First 60
+          if ($failures) {
+            "## Test failures" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+            '```' | Out-File -Append $env:GITHUB_STEP_SUMMARY
+            $failures | Out-File -Append $env:GITHUB_STEP_SUMMARY
+            '```' | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          }
+          exit $code
 
       - name: Publish portable executable
         run: >
