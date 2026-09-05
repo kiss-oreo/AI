@@ -40,12 +40,13 @@ jobs:
         run: |
           dotnet test tests/PortableDroid.Tests/PortableDroid.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=results.trx" --logger "console;verbosity=normal" 2>&1 | Tee-Object -FilePath test.log
           $code = $LASTEXITCODE
-          $failures = Select-String -Path test.log -Pattern '^\s*(Failed|error)' | ForEach-Object { $_.Line } | Select-Object -First 60
-          if ($failures) {
-            "## Test failures" | Out-File -Append $env:GITHUB_STEP_SUMMARY
-            '```' | Out-File -Append $env:GITHUB_STEP_SUMMARY
-            $failures | Out-File -Append $env:GITHUB_STEP_SUMMARY
-            '```' | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          if ($code -ne 0) {
+            $lines = Get-Content test.log
+            $failed = $lines | Where-Object { $_ -match '^\s*(Failed|Assert|Error Message|Expected:|Actual:|Stack Trace)' } | Select-Object -First 80
+            foreach ($l in $failed) {
+              $clean = ($l -replace '%','%25' -replace "`r",'' -replace "`n",'').Trim()
+              if ($clean) { Write-Host "::error::TEST $clean" }
+            }
           }
           exit $code
 
