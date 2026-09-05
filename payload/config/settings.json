@@ -1,0 +1,21 @@
+{
+  "$schema": "./settings.schema.json",
+  "activeProfile": "default",
+  "runtime": {
+    "backend": "qemu",
+    "memoryMB": 0,
+    "cpuCores": 0,
+    "resolution": "1280x720",
+    "fps": 30,
+    "bootTimeoutSeconds": 180
+  },
+  "storage": {
+    "profilesPath": "profiles",
+    "runtimePath": "runtime",
+    "tempPath": "temp",
+    "minFreeSpaceMB": 8192
+  },
+  "graphics": { "mode": "auto" },
+  "network": { "enabled": true, "adbPort": 5556, "qmpPort": 5557 },
+  "logging": { "level": "Information", "retainedFileCount": 5 }
+}
