@@ -4,7 +4,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Must stay false: WPF calls XmlLanguage.GetSpecificCulture() for every data binding, and
+         under invariant globalization .NET cannot resolve e.g. 'en-us' to a non-neutral culture,
+         so every binding throws InvalidOperationException and the main window crashes on startup. -->
+    <InvariantGlobalization>false</InvariantGlobalization>
     <Version>0.9.0</Version>
     <Company>PortableDroid</Company>
     <Product>PortableDroid</Product>
