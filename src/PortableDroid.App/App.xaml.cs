@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 using PortableDroid.App.ViewModels;
@@ -29,6 +30,24 @@ public partial class App : Application
 
         DispatcherUnhandledException += OnDispatcherUnhandledException;
         AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
+
+        // Pin an explicit, specific (non-neutral) culture before any XAML is loaded. WPF resolves
+        // a specific culture for every data binding (XmlLanguage.GetSpecificCulture); if that fails
+        // the main window dies before it renders. The real fix is InvariantGlobalization=false in
+        // Directory.Build.props — this is a second line of defence. If the culture cannot be
+        // resolved for any reason we silently keep the system default rather than block startup.
+        try
+        {
+            var culture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
+            System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+        }
+        catch
+        {
+            // fall back to the system default culture
+        }
 
         try
         {
