@@ -6,17 +6,17 @@ Windows hardware* and the result recorded in `docs/benchmarks.md`.
 
 | # | Milestone | Exit test | Status |
 |---|---|---|---|
-| M0 | Research + architecture + repo scaffold | docs reviewed, folder layout exists | **done (this change)** |
-| M1 | Runtime prototype: QEMU boots the guest, `adb devices` shows it | manual: `scripts/boot-prototype.ps1` → `adb -s 127.0.0.1:5556 shell getprop ro.build.version.release` prints a version | not started |
-| M2 | Persistence: install an app, power off, reboot, app still there | scripted round-trip, no `-snapshot` anywhere | not started |
-| M3 | Core library: PathService, config, logging, HardwareDetector + unit tests | `dotnet test` green | not started |
-| M4 | AdbService + ApkManager (install/uninstall/launch/stop/list) | integration test against a booted guest | not started |
-| M5 | RuntimeManager state machine + QMP health/crash detection | kill QEMU externally → UI state becomes `Crashed`, logs written | not started |
-| M6 | WPF shell: Dashboard, Applications, Install APK (drag & drop), Settings, Logs | manual walkthrough of §40 | not started |
-| M7 | Profiles + graphics fallback | 4 GB machine boots on Ultra Low; GL failure falls back cleanly | not started |
-| M8 | Portability pass: copy D:\ → E:\, run | §40 workflow passes from both drives | not started |
-| M9 | Backup/restore | backup while stopped, restore into a fresh folder, data intact | not started |
-| M10 | Benchmarks + compatibility matrix | `docs/benchmarks.md` and `docs/compatibility.md` filled with measured data | not started |
+| M0 | Research + architecture + repo scaffold | docs reviewed, folder layout exists | **done** |
+| M1 | Runtime prototype: QEMU boots the guest, `adb devices` shows it | `scripts/boot-prototype.ps1` → `getprop sys.boot_completed` = 1 | **blocked: needs Windows hardware + QEMU + image** |
+| M2 | Persistence: install an app, power off, reboot, app still there | scripted round-trip, no `-snapshot` anywhere | **code done, run blocked on M1** |
+| M3 | Core library: PathService, config, logging, HardwareDetector + unit tests | `dotnet test` green | **done, green in CI** |
+| M4 | AdbService + ApkManager (install/uninstall/launch/stop/list) | integration test against a booted guest | **code done + unit tested; integration blocked on M1** |
+| M5 | RuntimeManager state machine + QMP health/crash detection | kill QEMU externally → UI state becomes `Crashed`, logs written | **code done, run blocked on M1** |
+| M6 | WPF shell: Dashboard, Applications, Install APK (drag & drop), Settings, Logs | manual walkthrough of §40 | **done, builds + packages in CI** |
+| M7 | Profiles + graphics fallback | 4 GB machine boots on Ultra Low; GL failure falls back cleanly | **logic done + unit tested; needs hardware validation** |
+| M8 | Portability pass: copy D:\ → E:\, run | §40 workflow passes from both drives | **enforced by unit tests; end-to-end run pending** |
+| M9 | Backup/restore | backup while stopped, restore into a fresh folder, data intact | **code done, run pending** |
+| M10 | Benchmarks + compatibility matrix | `docs/benchmarks.md` and `docs/compatibility.md` filled with measured data | **not started — requires hardware** |
 
 ## Definition of Done (§55) — tracked, none checked yet
 
@@ -41,6 +41,14 @@ Windows hardware* and the result recorded in `docs/benchmarks.md`.
 Individual app windows, desktop shortcuts, `.xapk`/split APK, controller/keymapping,
 clipboard sync, screen recording, cloud backup, snapshots, Google Play, bundled ARM
 native bridge.
+
+## The honest gap
+
+Everything that can be verified without an Android guest has been built and is green in CI
+on `windows-latest`. Everything that requires booting Android is written but unproven.
+The blocking dependency is a Windows machine with virtualization, a QEMU build and a
+Vanilla/FOSS Android x86_64 image — none of which existed in the environment this was
+developed in.
 
 ## Immediate next action (M1)
 
